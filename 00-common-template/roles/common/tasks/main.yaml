@@ -1,0 +1,22 @@
+---
+# Config starship shell prompt
+
+- name: Extract tar.gz into /usr/local/bin
+  ansible.builtin.unarchive:
+    src: starship-x86_64-unknown-linux-gnu.tar.gz
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '755'
+
+- name: Create starship config toml file
+  ansible.builtin.copy:
+    src: starship.toml
+    dest: ~/.config/starship.toml
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Replace shell env file for starship prompt
+  ansible.builtin.script:
+    cmd: config_shell_env.sh 
