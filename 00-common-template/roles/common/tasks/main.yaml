@@ -7,7 +7,7 @@
     dest: /usr/local/bin
     owner: root
     group: root
-    mode: '755'
+    mode: "755"
 
 - name: Create starship config toml file
   ansible.builtin.copy:
@@ -15,8 +15,8 @@
     dest: ~/.config/starship.toml
     owner: root
     group: root
-    mode: '644'
+    mode: "644"
 
 - name: Replace shell env file for starship prompt
   ansible.builtin.script:
-    cmd: config_shell_env.sh 
+    cmd: config_shell_env.sh

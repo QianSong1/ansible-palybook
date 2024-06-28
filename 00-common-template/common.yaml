@@ -2,7 +2,7 @@
 # This playbook is a template, before use repalce roles 'common' to your role
 
 - name: Some desc for you job
-  hosts: 
+  hosts:
     - all
   remote_user: root
 
