@@ -1,0 +1,11 @@
+---
+# This playbook will config shell prompt by starship
+
+- name: Config shell prompt for all node
+  hosts: 
+    - all
+  remote_user: root
+
+  roles:
+    - starship
+
