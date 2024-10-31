@@ -55,6 +55,10 @@ truncation_length = 0
 truncate_to_repo = false
 read_only = " ro"
 
+[hostname]
+ssh_only = false
+ssh_symbol="㉿ "
+
 [docker_context]
 symbol = "docker "
 
