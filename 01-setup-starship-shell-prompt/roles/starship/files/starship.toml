@@ -57,7 +57,7 @@ read_only = " ro"
 
 [hostname]
 ssh_only = false
-ssh_symbol="㉿ "
+ssh_symbol = "㉿ "
 
 [docker_context]
 symbol = "docker "
