@@ -57,13 +57,14 @@ read_only = " ro"
 
 [hostname]
 ssh_only = false
-ssh_symbol = "🍒 "
+ssh_symbol = ""
 style = "bold green"
 
 [username]
 style_user = "bold purple"
 style_root = "bold purple"
-format = "[$user]($style) on "
+format = "[$user]($style) on 🍒 "
+show_always = true
 
 [docker_context]
 symbol = "docker "
