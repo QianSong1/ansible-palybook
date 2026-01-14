@@ -1,0 +1,10 @@
+---
+# 任务的触发处理程序，需要注意name要与任务的notify清单一致
+
+- name: "重启journald服务"
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+
+- name: "手动刷盘"
+  ansible.builtin.shell: "journalctl --flush"

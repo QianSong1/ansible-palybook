@@ -1,0 +1,11 @@
+---
+# 科学配置：1G内存/50G磁盘
+journal_storage: "persistent" # 日志保存在磁盘
+journal_system_max_use: "1G" # 限制最大使用磁盘 1G
+journal_system_maxfile_size: "128M" # 限制单个日志文件大小 128M
+journal_system_keep_free: "5G" # 预留 5G 磁盘空间
+journal_runtime_max_use: "100M" # 限制最大使用内存 100M
+journal_runtime_maxfile_size: "20M" # 限制内存中单个日志文件大小 20M
+journal_max_retention_sec: "1month" # 日志最多保留1个月
+journal_rate_limit_interval: "30s" # 限制磁盘刷写频率
+journal_rate_limit_burst: 1000

@@ -1,0 +1,10 @@
+---
+# 这是一个优化系统systemd日志的剧本
+
+- name: 优化系统systemd日志
+  hosts:
+    - log_server
+  remote_user: root
+
+  roles:
+    - journald_optimize
