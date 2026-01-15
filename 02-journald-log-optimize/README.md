@@ -129,9 +129,35 @@ tar
 # 使用 -j 配合 CPU 核心数加速编译
 [root@almalinux /tmp/Python-3.12.0]# sudo make -j $(nproc)
 
-# 此处可以直接使用 install，因为 prefix 已经隔离了路径
+# 【慎重】此处可以直接使用 install，因为 prefix 已经隔离了路径
 [root@almalinux /tmp/Python-3.12.0]# sudo make install
+
+# 【推荐】既然是完全纯净的隔离安装，我们推荐 altinstall，因为它不会创建任何（不带版本号）的软链接，因此不会搞坏你的环境
+[root@almalinux /tmp/Python-3.12.0]# sudo make altinstall
 ```
+
+**为什么这么做？**你的直觉是对的：既然指定了 `--prefix=/opt/python3.12`，理论上所有文件都应该被关进那个特定的“笼子”里。
+
+但在实际执行 `make install` 时，情况可能比想象中复杂一点，主要涉及以下两个原因：
+
+> 1. **编译脚本的默认行为**
+>    虽然你指定了安装路径，但 Python 的 `Makefile` 在执行 `install` 目标时，除了拷贝二进制文件到 `/opt`，有时还会尝试在系统的全局路径（如 `/usr/local/bin`）中创建一些软链接（**Symbolic Links**），比如 `python3` 或 `pip3`。
+>
+>    如果你当前的系统已经有一个指向旧版本 Python 的 `/usr/local/bin/python3`，`make install` 可能会尝试覆盖它，导致原本依赖该路径的脚本出现兼容性问题。
+>
+> 2. **环境变量的“陷阱”**
+>    即使它乖乖地待在 `/opt` 目录下，如果你为了使用方便，将 `/opt/python3.12/bin` 加入了系统的 PATH 变量的最前面，那么当你输入 `python3` 时，系统会优先找到 `/opt` 里的版本，而不是系统自带的版本。**因此：慎重配置 PATH 环境变量，**既然是纯净安装+虚拟环境隔离，我们就不再需要依赖 PATH 环境变量了。
+
+**为什么 `altinstall` 是“双保险”？**
+
+这个 `make altinstall` 的核心逻辑是：<font color=red>不创建任何不带版本号的软链接。</font>
+
+我们可以对比一下两者的结果：
+
+| 安装方式        | /opt/python3.12/bin/ 下生成的文件             | 是否会生成全局软链接          |
+| --------------- | --------------------------------------------- | ----------------------------- |
+| make install    | 包含软链接 python3, python3.12, pip3, pip3.12 | 可能会尝试 创建全局 python3   |
+| make altinstall | 只有源文件 python3.12, pip3.12                | 绝对不会 创建任何全局 python3 |
 
 ------
 
