@@ -374,14 +374,14 @@ drwxr-xr-x 12 root root 162 Jan 14 16:18 journald_optimize
 ---
 # 科学配置：1G内存/50G磁盘
 journal_storage: "persistent"        # 日志保存在磁盘
-journal_system_max_use: "1G"         # 限制最大使用磁盘 1G
-journal_system_maxfile_size: "128M"  # 限制单个日志文件大小 128M
+journal_system_max_use: "500M"       # 限制最大使用磁盘 500M
+journal_system_maxfile_size: "50M"   # 限制单个日志文件大小 50M
 journal_system_keep_free: "5G"       # 预留 5G 磁盘空间
-journal_runtime_max_use: "100M"      # 限制最大使用内存 100M
-journal_runtime_maxfile_size: "20M"  # 限制内存中单个日志文件大小 20M
+journal_runtime_max_use: "64M"       # 限制最大使用内存 64M
+journal_runtime_maxfile_size: "16M"  # 限制内存中单个日志文件大小 16M
 journal_max_retention_sec: "1month"  # 日志最多保留1个月
 journal_rate_limit_interval: "30s"   # 限制磁盘刷写频率
-journal_rate_limit_burst: 1000
+journal_rate_limit_burst: 2000
 ```
 
 **2. 编写 Jinja2 模板 (`roles/journald_optimize/templates/journald.conf.j2`)**
@@ -390,14 +390,39 @@ journal_rate_limit_burst: 1000
 (venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/templates/journald.conf.j2
 # 由 AlmaLinux 管理机上的 Ansible 自动生成
 [Journal]
+# --- 持久化存储设置 (针对磁盘 /var/log/journal) ---
+
+# 建议设为 persistent，将日志持久化到硬盘 (/var/log/journal)
 Storage={{ journal_storage }}
+
+# 开启压缩，节省磁盘空间
 Compress=yes
+
+# 磁盘最大占用：建议 500M。
+# 50G 磁盘虽然不小，但日志属于次要数据，不应占用过多。
 SystemMaxUse={{ journal_system_max_use }}
+
+# 单个日志文件最大大小：建议 50M。
+# 这样可以保证日志轮转更频繁，方便按需清理。
 SystemMaxFileSize={{ journal_system_maxfile_size }}
+
+# 磁盘最少保留空间：建议 5G。
+# 确保日志增长不会导致磁盘完全写满，保留给系统运行使用。
 SystemKeepFree={{ journal_system_keep_free }}
+
+# 内存最大占用（运行时日志）：建议 64M。
+# 您只有 1G 内存，这里一定要严格限制，防止 journald 占用过多系统缓存。
 RuntimeMaxUse={{ journal_runtime_max_use }}
+
+# 运行时单个日志最大大小
 RuntimeMaxFileSize={{ journal_runtime_maxfile_size }}
+
+# 日志最长保存时间：建议 1month (1个月)。
+# 除非有合规需求，否则过旧的日志参考价值不大。
 MaxRetentionSec={{ journal_max_retention_sec }}
+
+# 限制速率：每 30 秒内最多记录 2000 条日志。
+# 防止某个服务故障刷屏导致 CPU 和 IO 飙升。
 RateLimitIntervalSec={{ journal_rate_limit_interval }}
 RateLimitBurst={{ journal_rate_limit_burst }}
 ```
@@ -415,25 +440,28 @@ RateLimitBurst={{ journal_rate_limit_burst }}
     state: directory
     owner: root
     group: systemd-journal
-    mode: '2755'
+    mode: "2755"
 
-- name: "【步骤 2】同步优化配置模板"
+- name: "【步骤 2】关键调用系统命令修复目录 /var/log/journal 权限"
+  ansible.builtin.shell:
+    cmd: "systemd-tmpfiles --create --prefix /var/log/journal"
+
+- name: "【步骤 3】同步优化配置模板"
   ansible.builtin.template:
     src: journald.conf.j2
     dest: /etc/systemd/journald.conf
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
     backup: yes
-  notify: 
+  notify:
     - "重启journald服务"
     - "手动刷盘"
-    - "重启journald服务"
 
-- name: "【步骤 3】强制立即执行变更"
+- name: "【步骤 4】强制立即执行变更"
   ansible.builtin.meta: flush_handlers
-  
-- name: "【步骤 4】究极保险重启journald服务"
+
+- name: "【步骤 5】究极保险重启journald服务"
   ansible.builtin.systemd:
     name: systemd-journald
     state: restarted
