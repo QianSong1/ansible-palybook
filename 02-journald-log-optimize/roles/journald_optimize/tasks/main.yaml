@@ -9,7 +9,11 @@
     group: systemd-journal
     mode: "2755"
 
-- name: "【步骤 2】同步优化配置模板"
+- name: "【步骤 2】关键调用系统命令修复目录 /var/log/journal 权限"
+  ansible.builtin.shell:
+    cmd: "systemd-tmpfiles --create --prefix /var/log/journal"
+
+- name: "【步骤 3】同步优化配置模板"
   ansible.builtin.template:
     src: journald.conf.j2
     dest: /etc/systemd/journald.conf
@@ -20,12 +24,11 @@
   notify:
     - "重启journald服务"
     - "手动刷盘"
-    - "重启journald服务"
 
-- name: "【步骤 3】强制立即执行变更"
+- name: "【步骤 4】强制立即执行变更"
   ansible.builtin.meta: flush_handlers
 
-- name: "【步骤 4】究极保险重启journald服务"
+- name: "【步骤 5】究极保险重启journald服务"
   ansible.builtin.systemd:
     name: systemd-journald
     state: restarted

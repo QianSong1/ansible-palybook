@@ -1,11 +1,37 @@
+# 由 AlmaLinux 管理机上的 Ansible 自动生成
 [Journal]
+# --- 持久化存储设置 (针对磁盘 /var/log/journal) ---
+
+# 建议设为 persistent，将日志持久化到硬盘 (/var/log/journal)
 Storage={{ journal_storage }}
+
+# 开启压缩，节省磁盘空间
 Compress=yes
+
+# 磁盘最大占用：建议 500M。
+# 50G 磁盘虽然不小，但日志属于次要数据，不应占用过多。
 SystemMaxUse={{ journal_system_max_use }}
+
+# 单个日志文件最大大小：建议 50M。
+# 这样可以保证日志轮转更频繁，方便按需清理。
 SystemMaxFileSize={{ journal_system_maxfile_size }}
+
+# 磁盘最少保留空间：建议 5G。
+# 确保日志增长不会导致磁盘完全写满，保留给系统运行使用。
 SystemKeepFree={{ journal_system_keep_free }}
+
+# 内存最大占用（运行时日志）：建议 64M。
+# 您只有 1G 内存，这里一定要严格限制，防止 journald 占用过多系统缓存。
 RuntimeMaxUse={{ journal_runtime_max_use }}
+
+# 运行时单个日志最大大小
 RuntimeMaxFileSize={{ journal_runtime_maxfile_size }}
+
+# 日志最长保存时间：建议 1month (1个月)。
+# 除非有合规需求，否则过旧的日志参考价值不大。
 MaxRetentionSec={{ journal_max_retention_sec }}
+
+# 限制速率：每 30 秒内最多记录 2000 条日志。
+# 防止某个服务故障刷屏导致 CPU 和 IO 飙升。
 RateLimitIntervalSec={{ journal_rate_limit_interval }}
 RateLimitBurst={{ journal_rate_limit_burst }}
