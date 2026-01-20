@@ -1,0 +1,6 @@
+---
+# 本文件定义主机清单hosts中，[local_server]组当中所有主机变量
+
+# 一些变量配置示例
+# ansible_python_interpreter: "/opt/python3.12/bin/python3.12" # 指定目标机使用，你手动编译的解释器
+# timezone: "Asia/Shanghai" # 指定时区

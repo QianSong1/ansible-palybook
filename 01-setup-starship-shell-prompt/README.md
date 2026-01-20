@@ -1,5 +1,4 @@
-批量配置shell提示符样式，通过starship星舰
--------------------------------------------
+## 批量配置shell提示符样式，通过starship星舰
 
 这些剧本需要Ansible 1.2。
 
@@ -26,16 +25,16 @@ bensible
 ansible -i hosts all --list-hosts
 
 # 列出剧本任务列表
-ansible-playbook -i hosts --list-tasks starship.yaml
+ansible-playbook -i hosts --list-tasks site.yml
 
 # 检查语法
-ansible-playbook -i hosts --syntax-check starship.yaml
+ansible-playbook -i hosts --syntax-check site.yml
 
 # 模拟执行剧本
-ansible-playbook -i hosts -C starship.yaml
+ansible-playbook -i hosts -C site.yml
 
 # 执行剧本
-ansible-playbook -i hosts starship.yaml
+ansible-playbook -i hosts site.yml
 ```
 
 完成后，您可以通过 `ansible` 命令查看结果
@@ -57,4 +56,3 @@ drwx------. 2 root root    6 4月  13 2023 procps
 # config starship PROMPT
 eval "$(starship init zsh)"
 ```
-

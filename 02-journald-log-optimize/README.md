@@ -1,5 +1,4 @@
-1.通用说明指南
--------------------------------------------
+## 1.通用说明指南
 
 这些剧本需要Ansible 1.2。
 
@@ -26,16 +25,16 @@ bensible
 ansible -i hosts all --list-hosts
 
 # 列出剧本任务列表
-ansible-playbook -i hosts --list-tasks site.yaml
+ansible-playbook -i hosts --list-tasks site.yml
 
 # 检查语法
-ansible-playbook -i hosts --syntax-check site.yaml
+ansible-playbook -i hosts --syntax-check site.yml
 
 # 模拟执行剧本
-ansible-playbook -i hosts -C site.yaml
+ansible-playbook -i hosts -C site.yml
 
 # 执行剧本
-ansible-playbook -i hosts site.yaml
+ansible-playbook -i hosts site.yml
 ```
 
 完成后，您可以通过 `ansible` 命令查看结果
@@ -58,14 +57,10 @@ drwx------. 2 root root    6 4月  13 2023 procps
 eval "$(starship init zsh)"
 ```
 
-
-
 ## 2.系统journald优化流程
 
 > 1. 安装 **`Python3`** 以及 **`ansible`** 核心
 > 2. 编写剧本
-
-
 
 ## 3.安装 ansible 核心
 
@@ -77,7 +72,7 @@ eval "$(starship init zsh)"
 
 以下是在 **AlmaLinux** 管理机上，将 Python 3.12 编译安装到 `/opt/python3.12` 的全流程：
 
-------
+---
 
 ### 3.1. 安装编译依赖
 
@@ -97,7 +92,7 @@ tk-devel \
 tar
 ```
 
-------
+---
 
 ### 3.2. 下载并准备源码
 
@@ -108,7 +103,7 @@ tar
 [root@almalinux /tmp]# cd Python-3.12.0
 ```
 
-------
+---
 
 ### 3.3. 配置安装路径（关键步骤）
 
@@ -121,7 +116,7 @@ tar
 [root@almalinux /tmp/Python-3.12.0]# sudo ./configure --prefix=/opt/python3.12 --enable-optimizations --with-ensurepip=install
 ```
 
-------
+---
 
 ### 3.4. 编译与安装
 
@@ -159,7 +154,7 @@ tar
 | make install    | 包含软链接 python3, python3.12, pip3, pip3.12 | 可能会尝试 创建全局 python3   |
 | make altinstall | 只有源文件 python3.12, pip3.12                | 绝对不会 创建任何全局 python3 |
 
-------
+---
 
 ### 3.5. 环境配置与使用
 
@@ -190,7 +185,7 @@ export PATH="/opt/python/bin:$PATH"
 python3.12 is /opt/python/bin/python3.12
 ```
 
-------
+---
 
 ### 3.6. 结合 Ansible 流程：创建基于 /opt 的虚拟环境
 
@@ -245,14 +240,14 @@ ansible [core 2.19.0]
 [root@almalinux ~]#
 ```
 
-------
+---
 
 ### 3.7. 维护与清理
 
 - **如果你想升级 Python**：只需要重复上述过程，将 `--prefix` 改为 `/opt/python3.13`，这样新老版本可以完美共存，互不干扰。
 - **如果你想彻底卸载**：只需要一行命令 `sudo rm -rf /opt/python3.12`，系统干净如初。
 
-------
+---
 
 **💡 为什么对于管理 1G 内存的目标机，这样做最“科学”？**
 
@@ -262,17 +257,13 @@ ansible [core 2.19.0]
 
 **现在你的 Python 已经在 `/opt` 中安家了。我们需要基于这个环境，再次运行你的日志优化 `site.yml` 剧本吗？**
 
-
-
 ## 4.编写剧本
 
 好的，现在再把剧本角色流程走一遍
 
-
-
 既然你的管理机（AlmaLinux）已经通过 `/opt` 目录手动编译安装了 Python 3.12，并且环境已经完全就绪，我们现在把所有的环节——**环境激活、项目结构、角色逻辑、总调度剧本**——串联起来，进行最后一次“通电测试”。
 
-------
+---
 
 ### 4.1.环境激活与工具安装
 
@@ -296,7 +287,7 @@ ansible [core 2.19.0]
   pyyaml version = 6.0.3 (with libyaml v0.2.5)
 ```
 
-------
+---
 
 ### 4.2.角色化项目结构
 
@@ -330,8 +321,8 @@ drwxr-xr-x 3 root root    66 Jan 14 16:11 02-journald-log-optimize
 192.168.44.201
 =====================================================================================
 
-(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim site.yaml
-(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# cat site.yaml
+(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim site.yml
+(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# cat site.yml
 =====================================================================================
 ---
 # 这是一个优化系统systemd日志的剧本
@@ -363,14 +354,14 @@ drwxr-xr-x 12 root root 162 Jan 14 16:11 common
 drwxr-xr-x 12 root root 162 Jan 14 16:18 journald_optimize
 ```
 
-------
+---
 
 ### 4.3.填充代码内容（1G内存/50G磁盘优化版）
 
-**1. 定义默认变量 (`roles/journald_optimize/defaults/main.yaml`)**
+**1. 定义默认变量 (`roles/journald_optimize/defaults/main.yml`)**
 
 ```bash
-(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/defaults/main.yaml
+(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/defaults/main.yml
 ---
 # 科学配置：1G内存/50G磁盘
 journal_storage: "persistent"        # 日志保存在磁盘
@@ -427,10 +418,10 @@ RateLimitIntervalSec={{ journal_rate_limit_interval }}
 RateLimitBurst={{ journal_rate_limit_burst }}
 ```
 
-**3. 编写核心任务 (`roles/journald_optimize/tasks/main.yaml`)**
+**3. 编写核心任务 (`roles/journald_optimize/tasks/main.yml`)**
 
 ```bash
-(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/tasks/main.yaml
+(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/tasks/main.yml
 ---
 # 优化systemd日志具体任务
 
@@ -467,10 +458,10 @@ RateLimitBurst={{ journal_rate_limit_burst }}
     state: restarted
 ```
 
-**4. 编写处理程序 (`roles/journald_optimize/handlers/main.yaml`)**
+**4. 编写处理程序 (`roles/journald_optimize/handlers/main.yml`)**
 
 ```bash
-(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/handlers/main.yaml
+(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# vim roles/journald_optimize/handlers/main.yml
 ---
 # 任务的触发处理程序，需要注意name要与任务的notify清单一致
 
@@ -483,7 +474,7 @@ RateLimitBurst={{ journal_rate_limit_burst }}
   ansible.builtin.shell: "journalctl --flush"
 ```
 
-------
+---
 
 ### 4.4.总调度配置
 
@@ -499,7 +490,7 @@ RateLimitBurst={{ journal_rate_limit_burst }}
 **2. 入口剧本 (`site.yml`)**
 
 ```bash
-(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# cat site.yaml
+(venv) [root@almalinux ~/ansible-palybook/02-journald-log-optimize]# cat site.yml
 ---
 # 这是一个优化系统systemd日志的剧本
 
@@ -512,7 +503,7 @@ RateLimitBurst={{ journal_rate_limit_burst }}
     - journald_optimize
 ```
 
-------
+---
 
 ### 4.5.一键运行与终极检查
 
@@ -561,25 +552,25 @@ ssh root@192.168.44.201 "ip a"
 ansible -i hosts all --list-hosts
 
 # 列出剧本任务列表
-ansible-playbook -i hosts --list-tasks site.yaml
+ansible-playbook -i hosts --list-tasks site.yml
 
 # 检查语法
-ansible-playbook -i hosts --syntax-check site.yaml
+ansible-playbook -i hosts --syntax-check site.yml
 
 # 模拟执行剧本
-ansible-playbook -i hosts -C site.yaml
+ansible-playbook -i hosts -C site.yml
 
 # 执行剧本
-ansible-playbook -i hosts site.yaml
+ansible-playbook -i hosts site.yml
 ```
 
 **3. 科学验证 (Ad-hoc 方式)**
 
 利用 Ansible 的强大功能进行批量核验：
 
-- **检查磁盘持久化位置**： `ansible log_server -i hosts -m ansible.builtin.shell -a "journalctl --disk-usage"` *(输出应显示在 /var/log/journal 目录下)*
-- **检查配置文件中的内存限制**： `ansible log_server -i hosts -m ansible.builtin.shell -a "grep -i 'RuntimeMaxUse' /etc/systemd/journald.conf"` *(输出应显示 100M)*
-- **检查生效的配置参数：**`ansible log_server -i hosts -m ansible.builtin.shell -a "journalctl -u systemd-journald | grep -Ei '(/run/log/jour|/var/log/jour)'"`*(输出应显示 各种日志的配额，与你的配置一致才对，证明生效)*
+- **检查磁盘持久化位置**： `ansible log_server -i hosts -m ansible.builtin.shell -a "journalctl --disk-usage"` _(输出应显示在 /var/log/journal 目录下)_
+- **检查配置文件中的内存限制**： `ansible log_server -i hosts -m ansible.builtin.shell -a "grep -i 'RuntimeMaxUse' /etc/systemd/journald.conf"` _(输出应显示 100M)_
+- **检查生效的配置参数：**`ansible log_server -i hosts -m ansible.builtin.shell -a "journalctl -u systemd-journald | grep -Ei '(/run/log/jour|/var/log/jour)'"`_(输出应显示 各种日志的配额，与你的配置一致才对，证明生效)_
 
 **4.退出虚拟环境**
 
@@ -589,7 +580,7 @@ ansible-playbook -i hosts site.yaml
 [root@almalinux ~/ansible-palybook/02-journald-log-optimize]#
 ```
 
-------
+---
 
 ## 5.总结
 

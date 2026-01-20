@@ -1,0 +1,6 @@
+---
+# 本文件定义主机清单hosts中，所有主机通用变量
+
+# 一些内置ansible全局通用变量示例
+# ansible_python_interpreter: "/opt/python3.12/bin/python3.12" # 指定目标机使用，你手动编译的解释器
+# timezone: "Asia/Shanghai" # 指定时区

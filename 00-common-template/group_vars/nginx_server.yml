@@ -1,0 +1,8 @@
+---
+# 本文件定义主机清单hosts中，[nginx_server]组当中所有主机变量
+
+# 一些变量配置示例
+# nginx_port: 80
+# nginx_worker_processes: "auto"
+# nginx_client_max_body_size: "10M"
+# nginx_worker_connections: 1024 # 针对 1G 内存的 Nginx 优化
